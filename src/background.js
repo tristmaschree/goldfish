@@ -248,7 +248,7 @@ async function updateBadge() {
   const s = await getSettings();
   if (!s.showBadge) return chrome.action.setBadgeText({ text: "" });
   const loaded = await chrome.tabs.query({ discarded: false });
-  chrome.action.setBadgeBackgroundColor({ color: "#e37400" });
+  chrome.action.setBadgeBackgroundColor({ color: "#4285f4" });
   chrome.action.setBadgeText({ text: String(loaded.length) });
 }
 

@@ -3,7 +3,6 @@
    Muted text and hairlines are the palette's Black/Grey mixed toward the
    background, since the palette's own Grey is too light for text on white. */
 :root {
-  --g-orange: #e37400;
   --g-yellow: #fbbc04;
   --g-blue: #174ea6;
   --g-medium-blue: #4285f4;
@@ -20,8 +19,8 @@
   --muted: color-mix(in srgb, var(--g-black) 68%, white);
   --line: color-mix(in srgb, var(--g-grey) 40%, white);
   --chip: var(--g-light-grey);
-  --accent: var(--g-orange);
-  --on-accent: var(--g-black);
+  --accent: var(--g-medium-blue);
+  --on-accent: #ffffff;
   --link: var(--g-blue);
   color-scheme: light dark;
 }
