@@ -1,0 +1,113 @@
+/* Colors from Google's brand palette:
+   https://partnermarketinghub.withgoogle.com/brands/google-news/visual-identity/color-palette/
+   Muted text and hairlines are the palette's Black/Grey mixed toward the
+   background, since the palette's own Grey is too light for text on white. */
+:root {
+  --g-orange: #e37400;
+  --g-yellow: #fbbc04;
+  --g-blue: #174ea6;
+  --g-medium-blue: #4285f4;
+  --g-green: #0d652d;
+  --g-light-blue: #d2e3fc;
+  --g-light-green: #ceead6;
+  --g-light-yellow: #feefc3;
+  --g-light-grey: #f1f3f4;
+  --g-grey: #9aa0a6;
+  --g-black: #202124;
+
+  --bg: #ffffff;
+  --fg: var(--g-black);
+  --muted: color-mix(in srgb, var(--g-black) 68%, white);
+  --line: color-mix(in srgb, var(--g-grey) 40%, white);
+  --chip: var(--g-light-grey);
+  --accent: var(--g-orange);
+  --on-accent: var(--g-black);
+  --link: var(--g-blue);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--g-black);
+    --fg: var(--g-light-grey);
+    --muted: var(--g-grey);
+    --line: color-mix(in srgb, var(--g-grey) 25%, var(--g-black));
+    --chip: color-mix(in srgb, var(--g-grey) 14%, var(--g-black));
+    --link: var(--g-medium-blue);
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 { margin: 0; font-size: 16px; }
+.sub { margin: 0; color: var(--muted); font-size: 12px; }
+small { color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button {
+  font: inherit;
+  color: var(--fg);
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  flex: none;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+button.primary:hover { filter: brightness(1.06); }
+button:disabled { opacity: 0.5; cursor: default; }
+
+input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); flex: none; margin: 0; }
+
+select, textarea {
+  font: inherit;
+  color: var(--fg);
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 4px;
+}
+
+kbd {
+  font: inherit;
+  font-size: 10.5px;
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+/* Easel-style full-width setting row: label on the left, control on the right. */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.row:hover { background: var(--chip); }
+.row > span { display: flex; flex-direction: column; }
+
+.tag {
+  font-size: 10.5px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 0 5px;
+  flex: none;
+  color: var(--g-black);
+  background: var(--g-light-yellow);
+}
+.tag.playing { color: var(--g-green); background: var(--g-light-green); }
+.tag.pinned { color: var(--g-blue); background: var(--g-light-blue); }

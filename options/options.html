@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Goldfish settings</title>
+  <link rel="stylesheet" href="../src/theme.css" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon48.png" alt="" width="36" height="36" />
+      <div>
+        <h1>Goldfish</h1>
+        <p class="sub">Unloaded tabs stay in your tab strip and reload when you click them.</p>
+      </div>
+    </header>
+
+    <h2>Automatic</h2>
+    <section class="card">
+      <label class="row">
+        <span><strong>Unload idle tabs</strong><small>Tabs you haven't looked at for a while</small></span>
+        <select id="idleMinutes">
+          <option value="0">Never</option>
+          <option value="5">After 5 min</option>
+          <option value="15">After 15 min</option>
+          <option value="30">After 30 min</option>
+          <option value="60">After 1 hour</option>
+          <option value="120">After 2 hours</option>
+          <option value="480">After 8 hours</option>
+        </select>
+      </label>
+      <label class="row">
+        <span><strong>Loaded tab limit</strong><small>Unload the least recently used tabs past this many</small></span>
+        <select id="maxLoaded">
+          <option value="0">No limit</option>
+          <option value="5">5 tabs</option>
+          <option value="10">10 tabs</option>
+          <option value="15">15 tabs</option>
+          <option value="20">20 tabs</option>
+          <option value="30">30 tabs</option>
+          <option value="50">50 tabs</option>
+        </select>
+      </label>
+      <label class="row">
+        <span><strong>Unload collapsed groups</strong><small>Collapsing a tab group unloads its tabs</small></span>
+        <input type="checkbox" id="unloadCollapsedGroups" />
+      </label>
+      <label class="row">
+        <span><strong>Lazy background tabs</strong><small>Tabs opened with <kbd>⌘</kbd>-click don't load until you open them.</small></span>
+        <input type="checkbox" id="lazyBackgroundTabs" />
+      </label>
+      <label class="row">
+        <span><strong>Unload on screen lock</strong><small>Unload every idle tab when you lock your screen</small></span>
+        <input type="checkbox" id="unloadOnLock" />
+      </label>
+    </section>
+
+    <h2>Protection</h2>
+    <section class="card">
+      <p class="note">Automatic rules and bulk actions never unload the tab you're looking at or tabs playing audio.</p>
+      <label class="row">
+        <span><strong>Keep pinned tabs loaded</strong></span>
+        <input type="checkbox" id="keepPinned" />
+      </label>
+      <div class="stack">
+        <label for="neverUnload"><strong>Never unload these sites</strong><small>One per line. Subdomains are included.</small></label>
+        <textarea id="neverUnload" rows="6" spellcheck="false" placeholder="mail.google.com"></textarea>
+      </div>
+    </section>
+
+    <h2>Toolbar &amp; shortcuts</h2>
+    <section class="card">
+      <label class="row">
+        <span><strong>Loaded tab count</strong><small>Show it on the Goldfish icon</small></span>
+        <input type="checkbox" id="showBadge" />
+      </label>
+      <div class="row static">
+        <span><strong>Unload this tab</strong><small>Or every selected tab (⌘/Shift-click tabs to select several)</small></span>
+        <span class="keys"><kbd>⌥</kbd> <kbd>⇧</kbd> <kbd>U</kbd></span>
+      </div>
+      <div class="row static">
+        <span><strong>Unload other tabs</strong><small>Everything else in this window</small></span>
+        <span class="keys"><kbd>⌥</kbd> <kbd>⇧</kbd> <kbd>O</kbd></span>
+      </div>
+      <p class="note"><a href="#" id="shortcuts">Change shortcuts</a></p>
+    </section>
+
+    <p id="saved" aria-live="polite"></p>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

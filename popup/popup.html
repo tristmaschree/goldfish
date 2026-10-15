@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Goldfish</title>
+  <link rel="stylesheet" href="../src/theme.css" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="../icons/icon48.png" alt="" width="28" height="28" />
+    <div>
+      <h1>Goldfish</h1>
+      <p class="sub" id="counts">&nbsp;</p>
+    </div>
+  </header>
+
+  <section class="actions">
+    <button id="unload-tab" class="primary">Unload tab</button>
+    <button id="unload-others">Unload others</button>
+    <button id="unload-everything" title="Unload every tab that isn't visible, pinned, playing or protected">Unload idle</button>
+  </section>
+
+  <label class="row" id="protect-row" hidden>
+    <span><strong>Never unload this site</strong><small id="protect-host"></small></span>
+    <input type="checkbox" id="protect" />
+  </label>
+
+  <h2>Loaded tabs · least recently used first</h2>
+  <ul id="tabs"></ul>
+  <p id="empty" hidden>Only this tab is loaded. Nice and light.</p>
+
+  <footer>
+    <span id="total"></span>
+    <button id="settings" type="button">Settings</button>
+  </footer>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
