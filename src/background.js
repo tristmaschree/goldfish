@@ -71,7 +71,6 @@ async function unload(tabs) {
     const { unloadedTotal = 0 } = await chrome.storage.local.get("unloadedTotal");
     await chrome.storage.local.set({ unloadedTotal: unloadedTotal + count });
   }
-  scheduleBadge();
   return count;
 }
 
@@ -165,7 +164,6 @@ async function tick() {
   }
 
   if (doomed.size) await unload([...doomed]);
-  else scheduleBadge();
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -200,7 +198,6 @@ chrome.idle.onStateChanged.addListener(async (state) => {
 const lazyNow = new Set();
 
 chrome.tabs.onCreated.addListener(async (tab) => {
-  scheduleBadge();
   if (tab.active || !/^https?:/.test(tab.pendingUrl || tab.url || "")) return;
   lazyNow.add(tab.id);
   if (!(await getSettings()).lazyBackgroundTabs) return lazyNow.delete(tab.id);
@@ -224,33 +221,8 @@ chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId }) => {
   if (tab && !tab.active && isWebPage(tab)) unload([tab]);
 });
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  takeLazy(tabId);
-  scheduleBadge();
-});
-
-chrome.tabs.onRemoved.addListener((tabId) => {
-  takeLazy(tabId);
-  scheduleBadge();
-});
-
-// ---------------------------------------------------------------------------
-// Badge: number of loaded tabs. Debounced so a burst of tab events costs one
-// query. Tabs Chrome unloads on its own are picked up on the next event/tick.
-
-let badgeTimer;
-function scheduleBadge() {
-  clearTimeout(badgeTimer);
-  badgeTimer = setTimeout(updateBadge, 300);
-}
-
-async function updateBadge() {
-  const s = await getSettings();
-  if (!s.showBadge) return chrome.action.setBadgeText({ text: "" });
-  const loaded = await chrome.tabs.query({ discarded: false });
-  chrome.action.setBadgeBackgroundColor({ color: "#4285f4" });
-  chrome.action.setBadgeText({ text: String(loaded.length) });
-}
+chrome.tabs.onActivated.addListener(({ tabId }) => takeLazy(tabId));
+chrome.tabs.onRemoved.addListener((tabId) => takeLazy(tabId));
 
 // ---------------------------------------------------------------------------
 // Shortcuts, context menus, popup messages
@@ -299,16 +271,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;
   if (changes.idleMinutes || changes.maxLoaded) syncAlarm();
-  if (changes.showBadge) updateBadge();
 });
 
 chrome.runtime.onInstalled.addListener(() => {
   createMenus();
   syncAlarm();
-  updateBadge();
+  chrome.action.setBadgeText({ text: "" }); // clear the count shown by 0.1.0
 });
 
-chrome.runtime.onStartup.addListener(() => {
-  syncAlarm();
-  updateBadge();
-});
+chrome.runtime.onStartup.addListener(syncAlarm);

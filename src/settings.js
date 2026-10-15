@@ -16,8 +16,6 @@ export const DEFAULTS = {
   keepPinned: true,
   // Hostnames that are never unloaded (subdomains included).
   neverUnload: ["mail.google.com", "calendar.google.com", "meet.google.com"],
-  // Show the number of loaded tabs on the toolbar icon.
-  showBadge: true,
 };
 
 export async function getSettings() {
