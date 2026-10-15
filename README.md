@@ -1,6 +1,6 @@
 # Goldfish
 
-Chrome extension that unloads tabs, on demand or automatically, to free up memory.
+Makes your chrome better by giving the memory of a goldfish.
 
 Chrome only unloads tabs on its own schedule, after they've sat idle for a while. Goldfish lets you say "I'm done with this for now" and unload a tab **right away**. The tab stays in your tab strip, and clicking it reloads the page.
 
