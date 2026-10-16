@@ -69,6 +69,38 @@ button:disabled { opacity: 0.5; cursor: default; }
 
 input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); flex: none; margin: 0; }
 
+/* Apple-style switch, same as Easel's. Still a real checkbox underneath, so
+   the logic and keyboard/screen-reader behaviour are unchanged. */
+input[type="checkbox"][role="switch"] {
+  appearance: none;
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--g-grey) 55%, var(--bg));
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+input[type="checkbox"][role="switch"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(32, 33, 36, 0.3), 0 0 0 0.5px rgba(32, 33, 36, 0.08);
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+input[type="checkbox"][role="switch"]:checked { background: var(--accent); }
+input[type="checkbox"][role="switch"]:checked::before { transform: translateX(14px); }
+input[type="checkbox"][role="switch"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  input[type="checkbox"][role="switch"],
+  input[type="checkbox"][role="switch"]::before { transition: none; }
+}
+
 select, textarea {
   font: inherit;
   color: var(--fg);
