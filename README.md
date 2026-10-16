@@ -14,6 +14,11 @@ It uses `chrome.tabs.discard`, the same mechanism as Chrome's built-in Memory Sa
 - Right-click a page or the toolbar icon to unload: this tab, other tabs, tabs to the right, this tab group, or every tab from this site
 - The popup lists your loaded tabs, least recently used first, with one-click unloading
 
+**Close duplicate tabs**
+- When the same page is open in more than one tab, the popup offers to close the extra copies. It's also in the right-click menu.
+- It keeps the copy you're looking at, then a pinned copy, then one that's still loaded, then the most recently used. Pinned tabs and tabs playing audio are never closed, and links to different parts of the same page (`#section`) count as the same page.
+- Closed a tab you wanted? <kbd>⌘</kbd> <kbd>⇧ Shift</kbd> <kbd>T</kbd> brings it back.
+
 **Unload automatically** (configurable in Settings)
 - Tabs you haven't looked at for 30 minutes (adjustable)
 - Optional cap on how many tabs stay loaded

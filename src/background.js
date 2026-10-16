@@ -6,6 +6,7 @@
 // the same mechanism Chrome's Memory Saver uses.
 
 import { getSettings, hostOf, isProtectedHost } from "./settings.js";
+import { findDuplicates } from "./duplicates.js";
 
 const TICK = "goldfish-tick";
 
@@ -119,6 +120,14 @@ const actions = {
     const s = await getSettings();
     const all = await chrome.tabs.query({});
     return unload(all.filter((t) => autoEligible(t, s)));
+  },
+
+  // Close every copy but one of each page, across all windows.
+  // (Closed tabs can be brought back with Cmd/Ctrl+Shift+T.)
+  async duplicates() {
+    const extra = findDuplicates(await chrome.tabs.query({}));
+    if (extra.length) await chrome.tabs.remove(extra.map((t) => t.id));
+    return extra.length;
   },
 };
 
@@ -240,6 +249,7 @@ const MENU = [
   ["right", "Unload tabs to the right"],
   ["group", "Unload this tab group"],
   ["site", "Unload all tabs from this site"],
+  ["duplicates", "Close duplicate tabs"],
 ];
 
 function createMenus() {
@@ -257,7 +267,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg?.type !== "unload") return;
   (async () => {
-    if (msg.action === "everything") return actions.everything();
+    if (msg.action === "everything" || msg.action === "duplicates") return actions[msg.action]();
     if (msg.action === "tabs") {
       const tabs = await Promise.all(msg.tabIds.map((id) => chrome.tabs.get(id).catch(() => null)));
       return unload(tabs.filter(Boolean));

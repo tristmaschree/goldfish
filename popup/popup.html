@@ -21,6 +21,11 @@
     <button id="unload-everything" title="Unload every tab that isn't visible, pinned, playing or protected">Unload idle</button>
   </section>
 
+  <div class="row static" id="dupes-row" hidden>
+    <span><strong id="dupes-label"></strong><small>Keeps one copy of each page</small></span>
+    <button id="close-dupes" type="button">Close</button>
+  </div>
+
   <label class="row" id="protect-row" hidden>
     <span><strong>Never unload this site</strong><small id="protect-host"></small></span>
     <input type="checkbox" id="protect" />

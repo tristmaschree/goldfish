@@ -1,4 +1,5 @@
 import { getSettings, setSettings, hostOf, isProtectedHost } from "../src/settings.js";
+import { findDuplicates } from "../src/duplicates.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -33,6 +34,10 @@ async function render() {
   const loaded = all.filter((t) => !t.discarded);
   $("counts").textContent = `${loaded.length} loaded · ${all.length - loaded.length} unloaded`;
   $("total").textContent = unloadedTotal ? `${unloadedTotal.toLocaleString()} tabs unloaded so far` : "";
+
+  const dupes = findDuplicates(all).length;
+  $("dupes-row").hidden = dupes === 0;
+  $("dupes-label").textContent = `Close ${dupes} duplicate tab${dupes === 1 ? "" : "s"}`;
 
   const host = hostOf(current?.url);
   $("protect-row").hidden = !host;
@@ -104,6 +109,11 @@ $("unload-tab").onclick = () => run("tab");
 $("unload-others").onclick = () => run("others");
 $("unload-everything").onclick = async () => {
   await send({ action: "everything" });
+  render();
+};
+
+$("close-dupes").onclick = async () => {
+  await send({ action: "duplicates" });
   render();
 };
 
