@@ -16,10 +16,12 @@ header {
 }
 .actions button { padding: 6px 4px; font-size: 12px; }
 
-#protect-row { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+#dupes-row, #protect-row { border-top: 1px solid var(--line); }
+.row.static { cursor: default; }
 
 h2 {
   margin: 0;
+  border-top: 1px solid var(--line);
   padding: 10px 16px 4px;
   font-size: 11.5px;
   font-weight: 600;
