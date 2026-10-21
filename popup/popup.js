@@ -27,12 +27,20 @@ const MARK = "💤 ";
 let current;
 
 async function render() {
-  const [s, all] = await Promise.all([getSettings(), chrome.tabs.query({})]);
+  const [s, all, { unloadedTotal = 0 }] = await Promise.all([
+    getSettings(),
+    chrome.tabs.query({}),
+    chrome.storage.local.get("unloadedTotal"),
+  ]);
   [current] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const loaded = all.filter((t) => !t.discarded);
   const unloaded = all.filter((t) => t.discarded);
   $("counts").textContent = `${loaded.length} loaded · ${unloaded.length} unloaded`;
+  // Counts every unload, so the same tab unloaded twice counts twice.
+  $("total").textContent = unloadedTotal
+    ? `${unloadedTotal.toLocaleString()} tab${unloadedTotal === 1 ? "" : "s"} unloaded so far`
+    : "";
 
   const dupes = findDuplicates(all).length;
   $("dupes-row").hidden = dupes === 0;
