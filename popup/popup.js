@@ -21,21 +21,18 @@ function ago(ms) {
   return h < 24 ? `${h}h` : `${Math.round(h / 24)}d`;
 }
 
+// Marker Goldfish can add to unloaded tabs' titles (see background.js).
+const MARK = "💤 ";
+
 let current;
 
 async function render() {
-  const [s, all, { unloadedDay, unloadedToday = 0 }] = await Promise.all([
-    getSettings(),
-    chrome.tabs.query({}),
-    chrome.storage.local.get(["unloadedDay", "unloadedToday"]),
-  ]);
+  const [s, all] = await Promise.all([getSettings(), chrome.tabs.query({})]);
   [current] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const loaded = all.filter((t) => !t.discarded);
-  $("counts").textContent = `${loaded.length} loaded · ${all.length - loaded.length} unloaded`;
-  // Counts every unload, so the same tab unloaded twice counts twice.
-  const today = unloadedDay === new Date().toDateString() ? unloadedToday : 0;
-  $("total").textContent = today ? `Unloaded ${today.toLocaleString()} tab${today === 1 ? "" : "s"} today` : "";
+  const unloaded = all.filter((t) => t.discarded);
+  $("counts").textContent = `${loaded.length} loaded · ${unloaded.length} unloaded`;
 
   const dupes = findDuplicates(all).length;
   $("dupes-row").hidden = dupes === 0;
@@ -46,52 +43,69 @@ async function render() {
   $("protect-host").textContent = host;
   $("protect").checked = isProtectedHost(host, s.neverUnload);
 
-  const list = $("tabs");
-  list.replaceChildren();
   const others = loaded
     .filter((t) => t.id !== current?.id)
     .sort((a, b) => (a.lastAccessed || 0) - (b.lastAccessed || 0));
   $("empty").hidden = others.length > 0;
+  $("tabs").replaceChildren(
+    ...others.map((t) =>
+      row(t, s, "Unload", async () => {
+        await send({ action: "tabs", tabIds: [t.id] });
+      })
+    )
+  );
 
-  for (const t of others) {
-    const li = document.createElement("li");
+  // Unloaded tabs, most recently used first: the ones you're likeliest to want back.
+  unloaded.sort((a, b) => (b.lastAccessed || 0) - (a.lastAccessed || 0));
+  $("unloaded-section").hidden = unloaded.length === 0;
+  $("unloaded-count").textContent = unloaded.length;
+  $("unloaded").replaceChildren(
+    ...unloaded.map((t) =>
+      // Reloads in the background, so you stay where you are.
+      row(t, s, "Reload", () => chrome.tabs.reload(t.id))
+    )
+  );
+}
 
-    const icon = document.createElement("img");
-    icon.src = favicon(t.url);
-    icon.alt = "";
+function row(t, s, label, act) {
+  const li = document.createElement("li");
 
-    const title = document.createElement("span");
-    title.className = "title";
-    title.textContent = t.title || t.url;
-    title.title = `${t.title}\n${t.url}\n\nClick to switch to this tab`;
-    title.onclick = async () => {
-      await chrome.tabs.update(t.id, { active: true });
-      await chrome.windows.update(t.windowId, { focused: true });
-    };
+  const icon = document.createElement("img");
+  icon.src = favicon(t.url);
+  icon.alt = "";
 
-    li.append(icon, title);
+  const name = t.discarded && t.title?.startsWith(MARK) ? t.title.slice(MARK.length) : t.title;
+  const title = document.createElement("span");
+  title.className = "title";
+  title.textContent = name || t.url;
+  title.title = `${name}\n${t.url}\n\nClick to switch to this tab`;
+  title.onclick = async () => {
+    await chrome.tabs.update(t.id, { active: true });
+    await chrome.windows.update(t.windowId, { focused: true });
+  };
 
-    if (t.audible) li.append(tag("playing"));
-    else if (t.pinned) li.append(tag("pinned"));
-    else if (t.active) li.append(tag("visible"));
-    else if (isProtectedHost(hostOf(t.url), s.neverUnload)) li.append(tag("protected"));
+  li.append(icon, title);
 
-    const age = document.createElement("span");
-    age.className = "age";
-    age.textContent = t.active ? "" : ago(t.lastAccessed);
-    li.append(age);
+  if (t.audible) li.append(tag("playing"));
+  else if (t.pinned) li.append(tag("pinned"));
+  else if (t.active && !t.discarded) li.append(tag("visible"));
+  else if (!t.discarded && isProtectedHost(hostOf(t.url), s.neverUnload)) li.append(tag("protected"));
 
-    const btn = document.createElement("button");
-    btn.textContent = "Unload";
-    btn.onclick = async () => {
-      btn.disabled = true;
-      await send({ action: "tabs", tabIds: [t.id] });
-      render();
-    };
-    li.append(btn);
+  const age = document.createElement("span");
+  age.className = "age";
+  age.textContent = t.active && !t.discarded ? "" : ago(t.lastAccessed);
+  li.append(age);
 
-    list.append(li);
-  }
+  const btn = document.createElement("button");
+  btn.textContent = label;
+  btn.onclick = async () => {
+    btn.disabled = true;
+    await act();
+    render();
+  };
+  li.append(btn);
+
+  return li;
 }
 
 function tag(text) {
@@ -130,5 +144,16 @@ $("protect").onchange = async (e) => {
 };
 
 $("settings").onclick = () => chrome.runtime.openOptionsPage();
+
+// Remember whether the unloaded list was left open (just a convenience).
+const section = $("unloaded-section");
+try {
+  section.open = localStorage.getItem("unloadedOpen") === "1";
+} catch {}
+section.ontoggle = () => {
+  try {
+    localStorage.setItem("unloadedOpen", section.open ? "1" : "0");
+  } catch {}
+};
 
 render();
