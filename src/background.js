@@ -97,12 +97,6 @@ async function unload(tabs) {
       if (marked) setMark(tab.id, false);
     }
   }
-  if (count) {
-    // Unloads today (local time), for the popup footer.
-    const today = new Date().toDateString();
-    const { unloadedDay, unloadedToday = 0 } = await chrome.storage.local.get(["unloadedDay", "unloadedToday"]);
-    await chrome.storage.local.set({ unloadedDay: today, unloadedToday: (unloadedDay === today ? unloadedToday : 0) + count });
-  }
   return count;
 }
 
@@ -318,7 +312,8 @@ chrome.runtime.onInstalled.addListener(() => {
   createMenus();
   syncAlarm();
   chrome.action.setBadgeText({ text: "" }); // clear the count shown by 0.1.0
-  chrome.storage.local.remove("unloadedTotal"); // replaced by a daily count in 0.3.0
+  // Unload counters from 0.1-0.3; the popup now shows unloaded tabs directly.
+  chrome.storage.local.remove(["unloadedTotal", "unloadedDay", "unloadedToday"]);
 });
 
 chrome.runtime.onStartup.addListener(syncAlarm);

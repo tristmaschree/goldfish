@@ -13,6 +13,7 @@ It uses `chrome.tabs.discard`, the same mechanism as Chrome's built-in Memory Sa
 - <kbd>⌥ Option</kbd> <kbd>⇧ Shift</kbd> <kbd>O</kbd>: unload the other tabs in this window
 - Right-click a page or the toolbar icon to unload: this tab, other tabs, tabs to the right, this tab group, or every tab from this site
 - The popup lists your loaded tabs, least recently used first, with one-click unloading
+- Expand **Unloaded tabs** in the popup to see what's unloaded right now and reload any of them in the background
 
 **Close duplicate tabs**
 - When the same page is open in more than one tab, the popup offers to close the extra copies. It's also in the right-click menu.

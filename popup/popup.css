@@ -34,9 +34,53 @@ ul {
   list-style: none;
   margin: 0;
   padding: 0 0 6px;
-  max-height: 300px;
+  max-height: 240px;
   overflow-y: auto;
 }
+
+/* Collapsible "Unloaded tabs" section, styled like the h2 above it. */
+summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  padding: 10px 16px 4px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: 0 4px 0 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+details[open] > summary::before { transform: rotate(45deg); }
+summary:hover { color: var(--fg); }
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#unloaded-count {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--fg);
+  background: var(--chip);
+  border-radius: 8px;
+  padding: 0 6px;
+}
+#unloaded li .title { color: var(--muted); }
+#unloaded li:hover .title { color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { summary::before { transition: none; } }
 
 li {
   display: flex;
@@ -65,7 +109,7 @@ li:hover button, li button:focus-visible { visibility: visible; }
 footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 8px;
   padding: 10px 16px 12px;
   border-top: 1px solid var(--line);
