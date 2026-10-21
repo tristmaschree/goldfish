@@ -26,6 +26,11 @@ It uses `chrome.tabs.discard`, the same mechanism as Chrome's built-in Memory Sa
 - Optional: tabs opened in the background (Cmd-click) don't load until you open them
 - Optional: unload idle tabs when your screen locks
 
+**Mark unloaded tabs** (optional, off by default)
+- Adds 💤 to the start of a tab's title when Goldfish unloads it, so you can tell unloaded tabs apart in the tab strip. The page's own title comes back when you open it.
+- Chrome draws its dotted ring only on tabs it unloads itself, and extensions can't change that, so this is the closest equivalent.
+- Turning it on asks for permission to change the pages you unload. Goldfish only uses it to edit the title, and gives the permission back when you turn it off.
+
 **Never unloaded automatically:** the tab you're looking at, tabs playing audio, pinned tabs (configurable), and sites on your never-unload list (Gmail, Calendar and Meet by default).
 
 ## Lightweight by design
@@ -36,7 +41,7 @@ An extension meant to save resources shouldn't use many itself:
 - **Event-driven service worker.** Chrome shuts it down when idle, so it uses no memory between events.
 - **Infrequent timer.** The idle check runs at most once a minute, and less often with longer timeouts.
 - **Favicons come from Chrome's local cache**, so the popup makes no network requests.
-- **No network access at all.** No host permissions, analytics or remote code.
+- **No network access at all.** No analytics or remote code, and no access to sites unless you turn on **Mark unloaded tabs**.
 
 You can check its cost in Chrome's Task Manager (<kbd>⌘</kbd> + <kbd>Esc</kbd> on Mac, or Window → Task Manager): "Extension: Goldfish" usually isn't listed at all, because it isn't running.
 
@@ -58,12 +63,14 @@ You can check its cost in Chrome's Task Manager (<kbd>⌘</kbd> + <kbd>Esc</kbd>
 | `contextMenus` | Right-click menu items |
 | `storage` | Your settings |
 | `favicon` | Show tab icons in the popup from Chrome's cache |
+| `scripting` + site access *(optional)* | Only requested if you turn on **Mark unloaded tabs**, to add 💤 to a page's title before unloading it |
 
 ## Limitations
 
 - Chrome doesn't let extensions add items to the tab strip's own right-click menu. Use the shortcut, the page right-click menu, or the popup instead.
 - Lazy background tabs are unloaded before they finish loading, so they may show a URL instead of a title, and no icon, until you open them.
 - Unloading can lose unsaved state on some pages, such as text typed into a form or a video's playback position. Add those sites to the never-unload list.
+- The 💤 marker can't be added to pages extensions aren't allowed to change (such as the Chrome Web Store, PDFs and `chrome://` pages), to lazy background tabs, or to tabs Chrome unloads on its own.
 - Extensions can't read how much memory each tab uses, so Goldfish decides what to unload by how recently you've used each tab.
 
 ## License

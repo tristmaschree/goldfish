@@ -24,16 +24,18 @@ function ago(ms) {
 let current;
 
 async function render() {
-  const [s, all, { unloadedTotal = 0 }] = await Promise.all([
+  const [s, all, { unloadedDay, unloadedToday = 0 }] = await Promise.all([
     getSettings(),
     chrome.tabs.query({}),
-    chrome.storage.local.get("unloadedTotal"),
+    chrome.storage.local.get(["unloadedDay", "unloadedToday"]),
   ]);
   [current] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const loaded = all.filter((t) => !t.discarded);
   $("counts").textContent = `${loaded.length} loaded · ${all.length - loaded.length} unloaded`;
-  $("total").textContent = unloadedTotal ? `${unloadedTotal.toLocaleString()} tabs unloaded so far` : "";
+  // Counts every unload, so the same tab unloaded twice counts twice.
+  const today = unloadedDay === new Date().toDateString() ? unloadedToday : 0;
+  $("total").textContent = today ? `Unloaded ${today.toLocaleString()} tab${today === 1 ? "" : "s"} today` : "";
 
   const dupes = findDuplicates(all).length;
   $("dupes-row").hidden = dupes === 0;
