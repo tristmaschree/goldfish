@@ -14,6 +14,8 @@ export const DEFAULTS = {
   unloadOnLock: false,
   // Never unload pinned tabs.
   keepPinned: true,
+  // Put 💤 at the start of an unloaded tab's title (needs optional permissions).
+  markUnloaded: false,
   // Hostnames that are never unloaded (subdomains included).
   neverUnload: ["mail.google.com", "calendar.google.com", "meet.google.com"],
 };

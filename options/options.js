@@ -21,8 +21,20 @@ function parseHosts(text) {
   ];
 }
 
+// Marking titles needs page access, which is optional: ask for it when the
+// setting is turned on, and give it back when it's turned off.
+const MARK_PERMISSIONS = {
+  permissions: ["scripting"],
+  origins: ["http://*/*", "https://*/*", "file:///*"],
+};
+
 async function load() {
   const s = await getSettings();
+  // Permissions can be revoked from chrome://extensions, which turns this off.
+  if (s.markUnloaded && !(await chrome.permissions.contains(MARK_PERMISSIONS))) {
+    s.markUnloaded = false;
+    await setSettings({ markUnloaded: false });
+  }
   for (const [key, value] of Object.entries(DEFAULTS)) {
     const el = $(key);
     if (!el) continue;
@@ -35,7 +47,16 @@ async function load() {
 for (const [key, value] of Object.entries(DEFAULTS)) {
   const el = $(key);
   if (!el) continue;
-  if (typeof value === "boolean") {
+  if (key === "markUnloaded") {
+    el.onchange = async () => {
+      // permissions.request must run straight from the click, before any other await.
+      const ok = el.checked
+        ? await chrome.permissions.request(MARK_PERMISSIONS)
+        : (await chrome.permissions.remove(MARK_PERMISSIONS), false);
+      el.checked = ok;
+      setSettings({ markUnloaded: ok }).then(saved);
+    };
+  } else if (typeof value === "boolean") {
     el.onchange = () => setSettings({ [key]: el.checked }).then(saved);
   } else if (Array.isArray(value)) {
     el.onchange = () => {

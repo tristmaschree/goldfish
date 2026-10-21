@@ -54,23 +54,54 @@ async function stepAway(tab, avoid = new Set([tab.id])) {
   return true;
 }
 
+// Unloaded-tab marker (opt-in). Chrome only draws its dotted ring on tabs
+// that Memory Saver unloads itself, so Goldfish instead puts 💤 at the start
+// of the page title right before unloading. The unloaded tab keeps that title
+// in the tab strip, and the page sets its own title again when it reloads.
+// Needs the optional "scripting" permission plus access to sites, which the
+// Settings page requests when you turn this on; without them chrome.scripting
+// is undefined and nothing is marked.
+const MARK = "💤 ";
+
+async function setMark(tabId, on) {
+  const inject = chrome.scripting
+    .executeScript({
+      target: { tabId },
+      func: (mark, on) => {
+        const marked = document.title.startsWith(mark);
+        if (on && !marked) document.title = mark + (document.title || location.host);
+        if (!on && marked) document.title = document.title.slice(mark.length);
+      },
+      args: [MARK, on],
+    })
+    .catch(() => {}); // a page we can't script (Web Store, PDF, error page)
+  // Don't let a slow or frozen page hold up unloading.
+  await Promise.race([inject, new Promise((r) => setTimeout(r, 500))]);
+}
+
 // Unload a list of tabs. Returns how many were actually unloaded.
 async function unload(tabs) {
   const ids = new Set(tabs.map((t) => t.id));
+  const mark = chrome.scripting && (await getSettings()).markUnloaded;
   let count = 0;
   for (const tab of tabs) {
     if (tab.discarded) continue;
     if (tab.active && !(await stepAway(tab, ids))) continue;
+    const marked = mark && isWebPage(tab);
+    if (marked) await setMark(tab.id, true);
     try {
       await chrome.tabs.discard(tab.id);
       count++;
     } catch {
       // Tab closed meanwhile, or Chrome refused (e.g. a devtools page).
+      if (marked) setMark(tab.id, false);
     }
   }
   if (count) {
-    const { unloadedTotal = 0 } = await chrome.storage.local.get("unloadedTotal");
-    await chrome.storage.local.set({ unloadedTotal: unloadedTotal + count });
+    // Unloads today (local time), for the popup footer.
+    const today = new Date().toDateString();
+    const { unloadedDay, unloadedToday = 0 } = await chrome.storage.local.get(["unloadedDay", "unloadedToday"]);
+    await chrome.storage.local.set({ unloadedDay: today, unloadedToday: (unloadedDay === today ? unloadedToday : 0) + count });
   }
   return count;
 }
@@ -287,6 +318,7 @@ chrome.runtime.onInstalled.addListener(() => {
   createMenus();
   syncAlarm();
   chrome.action.setBadgeText({ text: "" }); // clear the count shown by 0.1.0
+  chrome.storage.local.remove("unloadedTotal"); // replaced by a daily count in 0.3.0
 });
 
 chrome.runtime.onStartup.addListener(syncAlarm);

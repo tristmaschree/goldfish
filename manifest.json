@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Goldfish",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Forget tabs on purpose. Unload tabs you're done with right now, and let idle ones unload themselves, to free up memory.",
   "icons": {
     "16": "icons/icon16.png",
@@ -28,6 +28,8 @@
     "webNavigation",
     "favicon"
   ],
+  "optional_permissions": ["scripting"],
+  "optional_host_permissions": ["http://*/*", "https://*/*", "file:///*"],
   "commands": {
     "unload-selected": {
       "suggested_key": { "default": "Alt+Shift+U" },
